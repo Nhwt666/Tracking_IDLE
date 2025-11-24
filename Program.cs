@@ -43,18 +43,75 @@ app.MapGet("/", async ctx =>
         idle = v.idle; status = idle > 30 ? "IDLE" : "ACTIVE"; lu = v.lastUpdate;
     }
 
-    var html = $@"<html>
-<head><meta http-equiv='refresh' content='2'>
+    var html = $@"<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta http-equiv='refresh' content='2'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>PC Idle Monitor</title>
+
 <style>
-body{{background:#111;color:#fff;font-family:Arial;text-align:center;padding:60px}}
-.box{{font-size:48px;padding:20px;border-radius:10px;background:{(status=="ACTIVE"?"green":"orange")};color:black}}
+    body {{
+        background: #0d0d0d;
+        margin: 0;
+        padding: 40px;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        color: #eee;
+        text-align: center;
+    }}
+
+    .container {{
+        max-width: 700px;
+        margin: auto;
+    }}
+
+    .status-box {{
+        padding: 35px;
+        border-radius: 14px;
+        font-size: 64px;
+        font-weight: 700;
+        margin-bottom: 40px;
+        color: #fff;
+        background: {(status == "ACTIVE" ? "#00c853" : "#ff9100")};
+        box-shadow: 0 0 25px {(status == "ACTIVE" ? "#00c853aa" : "#ff9100aa")};
+        transition: 0.2s ease-in-out;
+    }}
+
+    .info {{
+        font-size: 22px;
+        margin-top: 10px;
+        color: #ccc;
+    }}
+
+    .footer {{
+        margin-top: 40px;
+        font-size: 13px;
+        color: #666;
+    }}
 </style>
 </head>
+
 <body>
-<div class='box'>{status}</div>
-<p>Idle: {idle:F1} seconds</p>
-<p style='font-size:12px;color:#bbb'>Last update: {(lu.HasValue? lu.Value.ToString("u"):"never")}</p>
-</body></html>";
+<div class='container'>
+    <div class='status-box'>{status}</div>
+
+    <div class='info'>
+        Idle: <b>{idle:F1}</b> seconds
+    </div>
+
+    <div class='info' style='font-size:15px;margin-top:15px;'>
+        Last update:<br>
+        {(lu.HasValue ? lu.Value.ToString("yyyy-MM-dd HH:mm:ss 'UTC'") : "never")}
+    </div>
+
+    <div class='footer'>
+        PC Idle Monitor System – Auto refresh every 2s
+    </div>
+</div>
+</body>
+</html>";
+
     ctx.Response.ContentType = "text/html; charset=utf-8";
     await ctx.Response.WriteAsync(html);
 });

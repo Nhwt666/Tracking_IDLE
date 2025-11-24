@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "IdleMonitorServer": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:61542;http://localhost:61543"
+    }
+  }
+}
