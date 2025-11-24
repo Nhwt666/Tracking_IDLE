@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Concurrent;
@@ -38,77 +38,90 @@ app.MapGet("/", async ctx =>
     double idle = 0;
     string status = "UNKNOWN";
     DateTime? lu = null;
+
     if (store.TryGetValue("main-pc", out var v))
     {
-        idle = v.idle; status = idle > 30 ? "IDLE" : "ACTIVE"; lu = v.lastUpdate;
+        idle = v.idle;
+        status = idle > 30 ? "IDLE" : "ACTIVE";
+        lu = v.lastUpdate;
     }
 
-    var html = $@"<!DOCTYPE html>
-<html lang='en'>
+    string bgColor = status switch
+    {
+        "ACTIVE" => "#00c853",
+        "IDLE" => "#ffab00",
+        _ => "#9e9e9e"
+    };
+
+    var html = $@"
+<html>
 <head>
-<meta charset='UTF-8'>
-<meta http-equiv='refresh' content='2'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0'>
-<title>PC Idle Monitor</title>
-
 <style>
-    body {{
-        background: #0d0d0d;
-        margin: 0;
-        padding: 40px;
-        font-family: 'Segoe UI', Tahoma, sans-serif;
-        color: #eee;
-        text-align: center;
-    }}
+body {{
+    background:#111;
+    color:#fff;
+    font-family:Arial;
+    text-align:center;
+    padding:60px;
+}}
 
-    .container {{
-        max-width: 700px;
-        margin: auto;
-    }}
+.box {{
+    font-size:48px;
+    padding:20px;
+    border-radius:10px;
+    background:{bgColor};
+    color:black;
+    width: 80%;
+    margin: auto;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}}
 
-    .status-box {{
-        padding: 35px;
-        border-radius: 14px;
-        font-size: 64px;
-        font-weight: 700;
-        margin-bottom: 40px;
-        color: #fff;
-        background: {(status == "ACTIVE" ? "#00c853" : "#ff9100")};
-        box-shadow: 0 0 25px {(status == "ACTIVE" ? "#00c853aa" : "#ff9100aa")};
-        transition: 0.2s ease-in-out;
-    }}
+.box:hover {{
+    animation: pulse 0.6s infinite alternate ease-in-out;
+    filter: brightness(1.2);
+}}
 
-    .info {{
-        font-size: 22px;
-        margin-top: 10px;
-        color: #ccc;
-    }}
+@keyframes pulse {{
+    from {{ transform: scale(1.00); }}
+    to   {{ transform: scale(1.05); }}
+}}
 
-    .footer {{
-        margin-top: 40px;
-        font-size: 13px;
-        color: #666;
-    }}
+.footer {{
+    margin-top:20px;
+    font-size: 14px;
+    color: #aaa;
+}}
 </style>
 </head>
 
 <body>
-<div class='container'>
-    <div class='status-box'>{status}</div>
 
-    <div class='info'>
-        Idle: <b>{idle:F1}</b> seconds
-    </div>
+<div class='box'>{status}</div>
 
-    <div class='info' style='font-size:15px;margin-top:15px;'>
-        Last update:<br>
-        {(lu.HasValue ? lu.Value.ToString("yyyy-MM-dd HH:mm:ss 'UTC'") : "never")}
-    </div>
+<p>Idle: <span id='idle'>{idle:F1}</span> seconds</p>
 
-    <div class='footer'>
-        PC Idle Monitor System � Auto refresh every 2s
-    </div>
-</div>
+<p style='font-size:12px;color:#bbb'>
+Last update: {(lu.HasValue ? lu.Value.ToLocalTime().ToString("HH:mm:ss dd/MM/yyyy") : "never")}
+</p>
+
+<div class='footer'>PC Idle Monitor • Smooth real-time updates • Vietnam Time (UTC+7)</div>
+
+<script>
+// Idle tăng mượt theo thời gian thực
+let currentIdle = {{idle}};
+let currentStatus = ""{{status}}"";
+
+// Chỉ đếm khi KHÔNG phải UNKNOWN
+if (currentStatus !== ""UNKNOWN"") {{
+    setInterval(() => {{
+        currentIdle += 0.1;
+        document.querySelector('#idle').innerText = currentIdle.toFixed(1);
+    }}, 100);
+}}
+
+</script>
+
 </body>
 </html>";
 
@@ -118,4 +131,5 @@ app.MapGet("/", async ctx =>
 
 app.Run();
 
+// Record fix
 record UpdateRequest(double Idle);
