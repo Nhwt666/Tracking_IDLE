@@ -74,17 +74,7 @@ body {{
     width: 80%;
     margin: auto;
     transition: all 0.25s ease;
-    cursor: pointer;
-}}
-
-.box:hover {{
-    animation: pulse 0.6s infinite alternate ease-in-out;
-    filter: brightness(1.2);
-}}
-
-@keyframes pulse {{
-    from {{ transform: scale(1.00); }}
-    to   {{ transform: scale(1.05); }}
+    cursor: default;
 }}
 
 .footer {{
@@ -102,7 +92,7 @@ body {{
 <p>Idle: <span id='idle'>{idle:F1}</span> seconds</p>
 
 <p style='font-size:12px;color:#bbb'>
-Last update: {(lu.HasValue ? lu.Value.ToLocalTime().ToString("HH:mm:ss dd/MM/yyyy") : "never")}
+Last update: {(lu.HasValue ? lu.Value.AddHours(7).ToString("HH:mm:ss dd/MM/yyyy") : "never")}
 </p>
 
 <div class='footer'>PC Idle Monitor • Smooth real-time updates • Vietnam Time (UTC+7)</div>
@@ -110,20 +100,19 @@ Last update: {(lu.HasValue ? lu.Value.ToLocalTime().ToString("HH:mm:ss dd/MM/yyy
 <script>
 // Idle tăng mượt theo thời gian thực
 let currentIdle = {{idle}};
-let currentStatus = ""{{status}}"";
+let currentStatus = ""{{status}}""; 
 
-// Chỉ đếm khi KHÔNG phải UNKNOWN
 if (currentStatus !== ""UNKNOWN"") {{
     setInterval(() => {{
         currentIdle += 0.1;
         document.querySelector('#idle').innerText = currentIdle.toFixed(1);
     }}, 100);
 }}
-
 </script>
 
 </body>
 </html>";
+
 
     ctx.Response.ContentType = "text/html; charset=utf-8";
     await ctx.Response.WriteAsync(html);
